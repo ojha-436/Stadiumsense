@@ -32,7 +32,8 @@ export function ArrivalPlan({ profile, lang }: { profile: FanProfile; lang: Lang
         lang,
       });
       setPlan(result);
-    } catch {
+    } catch (err) {
+      console.error("Failed to generate arrival plan", err);
       setError(true);
     } finally {
       setLoading(false);

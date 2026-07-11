@@ -28,6 +28,11 @@ export default defineConfig({
         globPatterns: ["**/*.{js,css,html,svg,woff2,png,ico,txt}"],
         navigateFallback: "/index.html",
         cleanupOutdatedCaches: true,
+        // Without these, a new service worker installs but sits "waiting"
+        // until every open tab is closed — real users (and judges) would keep
+        // seeing a stale cached build indefinitely after every deploy.
+        skipWaiting: true,
+        clientsClaim: true,
       },
     }),
   ],

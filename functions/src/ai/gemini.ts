@@ -1,16 +1,19 @@
 /**
- * Vertex AI (Gemini) implementation of the AI gateway.
+ * Gemini implementation of the AI gateway, via Vertex AI Express Mode
+ * (`@google/genai`, `vertexai: true` + an API key instead of ADC).
  *
- * Model policy (see ARCHITECTURE.md ADR-4):
- *   - Flash  → ticket vision, route ranking, moderation (high volume, low latency)
- *   - Pro    → arrival planning, ops briefs (reasoning-heavy, lower volume)
+ * Model policy (see ARCHITECTURE.md ADR-4): every call currently uses
+ * `gemini-2.5-flash` (CONFIG.flashModel / CONFIG.proModel both default to it);
+ * the two config vars are kept separate so a future split back to a heavier
+ * "pro" tier for reasoning-heavy calls (arrival planning, ops briefs) is a
+ * one-line config change, not a code change.
  *
  * Every structured call constrains the model with responseSchema +
  * application/json so callers receive typed data, never free text to parse.
- * Auth is via Application Default Credentials (the function's service account),
- * so there is no API key anywhere in the codebase.
+ * The API key is bound from Secret Manager via each function's `secrets`
+ * option (see functions/src/index.ts) — it never reaches the client.
  */
-import { VertexAI, SchemaType, type ResponseSchema } from "@google-cloud/vertexai";
+import { GoogleGenAI, Type, type Schema } from "@google/genai";
 import { CONFIG } from "../config.js";
 import type { Lang, Match } from "../domain.js";
 import type {
@@ -29,7 +32,16 @@ import type {
   TicketParseResult,
 } from "./gateway.js";
 
-const vertex = new VertexAI({ project: CONFIG.projectId, location: CONFIG.location });
+let client: GoogleGenAI | null = null;
+
+/** Lazily construct the client so it always picks up the Secret Manager-bound
+ *  API key at call time, not at module load (before the secret is injected). */
+function ai(): GoogleGenAI {
+  if (!client) {
+    client = new GoogleGenAI({ apiKey: CONFIG.geminiApiKey, vertexai: true });
+  }
+  return client;
+}
 
 const LANG_NAME: Record<Lang, string> = {
   en: "English",
@@ -37,37 +49,35 @@ const LANG_NAME: Record<Lang, string> = {
   fr: "French (Canadian)",
 };
 
+type Part = { text: string } | { inlineData: { data: string; mimeType: string } };
+
 /** Run a prompt with a forced JSON schema and parse the result into T. */
-async function generateJson<T>(
-  model: string,
-  parts: Array<{ text: string } | { inlineData: { data: string; mimeType: string } }>,
-  schema: ResponseSchema
-): Promise<T> {
-  const gen = vertex.getGenerativeModel({
+async function generateJson<T>(model: string, parts: Part[], schema: Schema): Promise<T> {
+  const response = await ai().models.generateContent({
     model,
-    generationConfig: {
+    contents: [{ role: "user", parts }],
+    config: {
       temperature: 0.4,
       responseMimeType: "application/json",
       responseSchema: schema,
     },
   });
-  const result = await gen.generateContent({ contents: [{ role: "user", parts }] });
-  const text = result.response.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
+  const text = response.text ?? "{}";
   return JSON.parse(text) as T;
 }
 
 export class GeminiGateway implements AiGateway {
   async parseTicket(imageBase64: string, mimeType: string): Promise<TicketParseResult> {
-    const schema: ResponseSchema = {
-      type: SchemaType.OBJECT,
+    const schema: Schema = {
+      type: Type.OBJECT,
       properties: {
-        matchId: { type: SchemaType.STRING, nullable: true },
-        section: { type: SchemaType.STRING, nullable: true },
-        row: { type: SchemaType.STRING, nullable: true },
-        seat: { type: SchemaType.STRING, nullable: true },
-        gate: { type: SchemaType.STRING, nullable: true },
-        confidence: { type: SchemaType.NUMBER },
-        raw: { type: SchemaType.STRING },
+        matchId: { type: Type.STRING, nullable: true },
+        section: { type: Type.STRING, nullable: true },
+        row: { type: Type.STRING, nullable: true },
+        seat: { type: Type.STRING, nullable: true },
+        gate: { type: Type.STRING, nullable: true },
+        confidence: { type: Type.NUMBER },
+        raw: { type: Type.STRING },
       },
       required: ["confidence", "raw"],
     };
@@ -84,14 +94,14 @@ export class GeminiGateway implements AiGateway {
   }
 
   async planArrival(input: ArrivalPlanInput): Promise<ArrivalPlanResult> {
-    const schema: ResponseSchema = {
-      type: SchemaType.OBJECT,
+    const schema: Schema = {
+      type: Type.OBJECT,
       properties: {
-        leaveByIso: { type: SchemaType.STRING },
-        arriveByIso: { type: SchemaType.STRING },
-        recommendedGate: { type: SchemaType.STRING },
-        reasoning: { type: SchemaType.STRING },
-        assumptions: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+        leaveByIso: { type: Type.STRING },
+        arriveByIso: { type: Type.STRING },
+        recommendedGate: { type: Type.STRING },
+        reasoning: { type: Type.STRING },
+        assumptions: { type: Type.ARRAY, items: { type: Type.STRING } },
       },
       required: ["leaveByIso", "arriveByIso", "recommendedGate", "reasoning", "assumptions"],
     };
@@ -107,21 +117,21 @@ Write reasoning and assumptions in ${LANG_NAME[input.lang]}. Return ISO 8601 tim
   }
 
   async rankRoutes(input: RouteRankInput): Promise<RankedRoute[]> {
-    const schema: ResponseSchema = {
-      type: SchemaType.OBJECT,
+    const schema: Schema = {
+      type: Type.OBJECT,
       properties: {
         routes: {
-          type: SchemaType.ARRAY,
+          type: Type.ARRAY,
           items: {
-            type: SchemaType.OBJECT,
+            type: Type.OBJECT,
             properties: {
-              id: { type: SchemaType.STRING },
-              summary: { type: SchemaType.STRING },
-              durationMins: { type: SchemaType.NUMBER },
-              mode: { type: SchemaType.STRING },
-              steps: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
-              crowdLevel: { type: SchemaType.STRING, enum: ["low", "medium", "high"], format: "enum" },
-              recommendation: { type: SchemaType.STRING },
+              id: { type: Type.STRING },
+              summary: { type: Type.STRING },
+              durationMins: { type: Type.NUMBER },
+              mode: { type: Type.STRING },
+              steps: { type: Type.ARRAY, items: { type: Type.STRING } },
+              crowdLevel: { type: Type.STRING, enum: ["low", "medium", "high"], format: "enum" },
+              recommendation: { type: Type.STRING },
             },
             required: ["id", "summary", "durationMins", "mode", "steps", "crowdLevel", "recommendation"],
           },
@@ -142,11 +152,11 @@ Assign each a crowdLevel (low/medium/high) and a one-sentence recommendation in 
   }
 
   async matchContent(match: Match, lang: Lang): Promise<MatchContentResult> {
-    const schema: ResponseSchema = {
-      type: SchemaType.OBJECT,
+    const schema: Schema = {
+      type: Type.OBJECT,
       properties: {
-        preview: { type: SchemaType.STRING },
-        facts: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+        preview: { type: Type.STRING },
+        facts: { type: Type.ARRAY, items: { type: Type.STRING } },
       },
       required: ["preview", "facts"],
     };
@@ -157,18 +167,18 @@ Keep the preview under 60 words and each fact under 20 words. Be factual and upb
   }
 
   async opsBrief(snapshot: OpsSnapshot, lang: Lang): Promise<OpsBriefResult> {
-    const schema: ResponseSchema = {
-      type: SchemaType.OBJECT,
+    const schema: Schema = {
+      type: Type.OBJECT,
       properties: {
-        summary: { type: SchemaType.STRING },
+        summary: { type: Type.STRING },
         actions: {
-          type: SchemaType.ARRAY,
+          type: Type.ARRAY,
           items: {
-            type: SchemaType.OBJECT,
+            type: Type.OBJECT,
             properties: {
-              title: { type: SchemaType.STRING },
-              detail: { type: SchemaType.STRING },
-              priority: { type: SchemaType.STRING, enum: ["low", "medium", "high"], format: "enum" },
+              title: { type: Type.STRING },
+              detail: { type: Type.STRING },
+              priority: { type: Type.STRING, enum: ["low", "medium", "high"], format: "enum" },
             },
             required: ["title", "detail", "priority"],
           },
@@ -187,16 +197,16 @@ Reference specific zone names and numbers. Only recommend actions that the data 
   }
 
   async moderatePost(caption: string, imageBase64?: string): Promise<ModerationResult> {
-    const schema: ResponseSchema = {
-      type: SchemaType.OBJECT,
+    const schema: Schema = {
+      type: Type.OBJECT,
       properties: {
-        allowed: { type: SchemaType.BOOLEAN },
-        altText: { type: SchemaType.STRING },
-        reason: { type: SchemaType.STRING, nullable: true },
+        allowed: { type: Type.BOOLEAN },
+        altText: { type: Type.STRING },
+        reason: { type: Type.STRING, nullable: true },
       },
       required: ["allowed", "altText"],
     };
-    const parts: Array<{ text: string } | { inlineData: { data: string; mimeType: string } }> = [
+    const parts: Part[] = [
       {
         text: `Moderate this fan social post for a family-friendly FIFA World Cup 2026 wall. Reject hate speech, harassment, or explicit content. Also write concise descriptive alt text for the image (for screen-reader accessibility). Caption: "${caption}".`,
       },
@@ -211,11 +221,11 @@ Reference specific zone names and numbers. Only recommend actions that the data 
     context: OpsChatContext,
     lang: Lang
   ): Promise<OpsChatResult> {
-    const schema: ResponseSchema = {
-      type: SchemaType.OBJECT,
+    const schema: Schema = {
+      type: Type.OBJECT,
       properties: {
-        answer: { type: SchemaType.STRING },
-        sources: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+        answer: { type: Type.STRING },
+        sources: { type: Type.ARRAY, items: { type: Type.STRING } },
       },
       required: ["answer", "sources"],
     };

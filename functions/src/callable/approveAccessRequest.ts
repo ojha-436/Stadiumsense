@@ -26,17 +26,28 @@ export const approveAccessRequest = onCall({ enforceAppCheck: true }, async (req
     const user = await adminAuth.getUser(uid);
     const claims: Record<string, unknown> = { ...user.customClaims, role, active: true };
     // Bind a stall to newly-approved vendors so rules can scope their data.
-    if (role === "vendor") claims.stallId = user.customClaims?.stallId ?? `stall-${uid.slice(0, 6)}`;
+    if (role === "vendor")
+      claims.stallId = user.customClaims?.stallId ?? `stall-${uid.slice(0, 6)}`;
     await adminAuth.setCustomUserClaims(uid, claims);
     await adminAuth.revokeRefreshTokens(uid); // force claim refresh
-    await db.doc(`users/${uid}`).set(
-      { role, status: "active", requestedRole: null, ...(claims.stallId ? { stallId: claims.stallId } : {}) },
-      { merge: true }
-    );
+    await db
+      .doc(`users/${uid}`)
+      .set(
+        {
+          role,
+          status: "active",
+          requestedRole: null,
+          ...(claims.stallId ? { stallId: claims.stallId } : {}),
+        },
+        { merge: true }
+      );
   } else {
     await db.doc(`users/${uid}`).set({ status: "rejected", requestedRole: null }, { merge: true });
   }
 
-  await reqRef.set({ status: approve ? "approved" : "rejected", decidedAt: Date.now() }, { merge: true });
+  await reqRef.set(
+    { status: approve ? "approved" : "rejected", decidedAt: Date.now() },
+    { merge: true }
+  );
   return { uid, role: approve ? role : "fan", status: approve ? "active" : "rejected" };
 });

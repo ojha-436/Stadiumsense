@@ -11,6 +11,15 @@ summarises the controls a reviewer can verify in the code.
   role — the claim is server-issued and cryptographically signed in the token.
 - Client-side route guards (`RequireRole`) are **UX only**. The authoritative
   boundary is Firestore/Storage security rules, tested in `test/rules/`.
+- **Admin portal access key (`AdminGate`, default `2026-Fifa`, override via
+  `VITE_ADMIN_KEY`) is a client-side gate, not a real access control** — it is
+  compiled into the shipped JS bundle, so anyone inspecting it can read the
+  value. It exists to keep the admin UI from being casually stumbled into, not
+  to withstand a determined attacker. The real boundary behind it is unchanged:
+  Firestore rules still require the `admin` custom claim for every admin
+  action, so passing the gate alone grants no data access. For a non-demo
+  deployment, move this check server-side (e.g. an App Check-gated callable
+  that verifies a hashed key from Secret Manager) before relying on it.
 
 ## Data access rules (deny-by-default)
 
@@ -31,10 +40,12 @@ content-type and size caps.
 
 ## Secrets & third-party keys
 
-- **No Gemini or Maps key ever reaches the browser.** All Gemini (Vertex AI) and
-  Maps calls run inside Cloud Functions; Vertex AI authenticates via the
-  function's service account (Application Default Credentials) — there is no API
-  key to leak. Maps server keys live in Secret Manager.
+- **No Gemini or Maps key ever reaches the browser.** All Gemini and Maps calls
+  run inside Cloud Functions. Gemini authenticates via Vertex AI Express Mode
+  using an API key (`@google/genai`, `vertexai: true`) bound from **Secret
+  Manager** at deploy time via the `secrets` option — it is injected into the
+  function's runtime environment and never appears in source, `.env` files, or
+  the client bundle. Maps server keys live in Secret Manager the same way.
 - The Firebase web API key is **not** a secret (access is governed by rules +
   App Check); it is the only key present client-side, by design.
 - `.env*`, service-account JSON, and debug tokens are git-ignored.

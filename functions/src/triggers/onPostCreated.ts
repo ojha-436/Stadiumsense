@@ -1,5 +1,6 @@
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import "../lib/admin.js"; // ensure Admin SDK is initialised
+import { GEMINI_API_KEY } from "../lib/secrets.js";
 import { getGateway } from "../ai/index.js";
 
 /**
@@ -9,7 +10,7 @@ import { getGateway } from "../ai/index.js";
  * published=true (fans create posts with published=false; rules forbid the flip).
  */
 export const onPostCreated = onDocumentCreated(
-  { document: "posts/{postId}", memory: "512MiB" },
+  { document: "posts/{postId}", memory: "512MiB", secrets: [GEMINI_API_KEY] },
   async (event) => {
     const snap = event.data;
     if (!snap) return;

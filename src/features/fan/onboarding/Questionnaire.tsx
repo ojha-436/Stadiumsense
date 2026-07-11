@@ -46,7 +46,7 @@ export function Questionnaire({
     e.preventDefault();
     onSubmit({
       matchId,
-      seat: { section, row, seat, gate: undefined },
+      seat: { section, row, seat },
       startAddress: startAddress || undefined,
       transportMode,
       partySize,

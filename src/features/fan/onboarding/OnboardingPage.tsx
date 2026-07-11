@@ -30,7 +30,8 @@ export function OnboardingPage({ uid }: { uid: string }) {
     try {
       await saveFanProfile(uid, draft);
       // The FanApp profile listener re-renders into the tabbed app automatically.
-    } catch {
+    } catch (err) {
+      console.error("Failed to save fan profile", err);
       setError(true);
       setSaving(false);
     }

@@ -65,7 +65,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const claims = await readClaims(user);
       // Subscribe to the profile doc so status/approval changes are live.
       docUnsub.current = onSnapshot(doc(db, COLLECTIONS.users, user.uid), (snap) => {
-        const profile: UserDoc | null = snap.exists() ? mapUser(snap.id, snap.data()) : null;
+        // This Firebase project also hosts an unrelated legacy app that shares
+        // the same `users` collection name. A doc existing there is NOT proof
+        // it's one of ours — only a doc with our `status` marker field counts,
+        // otherwise a legacy account would skip straight past the role-chooser.
+        const raw = snap.data();
+        const isOwnProfile = snap.exists() && typeof raw?.status === "string";
+        const profile: UserDoc | null = isOwnProfile ? mapUser(snap.id, raw!) : null;
         setState({
           user,
           role: claims.role,

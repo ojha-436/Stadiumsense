@@ -4,6 +4,12 @@
  * All callables enforce App Check and validate their inputs; role-restricted
  * ones additionally check the caller's custom claim. This is the only tier that
  * talks to Gemini/Maps, so no third-party key ever reaches the browser.
+ *
+ * The Gemini API key is bound from Secret Manager (never hardcoded) via the
+ * `secrets: [GEMINI_API_KEY]` option on each individual function that uses the
+ * AI gateway — a global `secrets` entry in `setGlobalOptions` does NOT reliably
+ * bind secrets to 2nd-gen functions, so each call site declares it explicitly
+ * (see functions/src/lib/secrets.ts).
  */
 import { setGlobalOptions } from "firebase-functions/v2";
 

@@ -30,11 +30,12 @@
               │  all four surfaces        │          │           │
               └────────────▲─────────────┘          ▼           ▼
                            │                ┌──────────────┐ ┌───────────────┐
-              ┌────────────┴─────────────┐  │ Vertex AI    │ │ Google Maps    │
-              │  Crowd Simulator          │  │ Gemini 2.x   │ │ Platform       │
-              │  (Cloud Run + Scheduler)  │  │ Flash + Pro  │ │ Routes/Places  │
-              │  zone density, gates,     │  │ + Vision     │ │ (server-side)  │
-              │  transit load, incidents  │  └──────────────┘ └───────────────┘
+              ┌────────────┴─────────────┐  │ Gemini 2.5   │ │ Google Maps    │
+              │  Crowd Simulator          │  │ Flash        │ │ Platform       │
+              │  (Cloud Run + Scheduler)  │  │ (+ Vision)   │ │ Routes/Places  │
+              │  zone density, gates,     │  │ via Vertex   │ │ (server-side)  │
+              │  transit load, incidents  │  │ Express Mode │ └───────────────┘
+              └───────────────────────────┘  └──────────────┘
               └───────────────────────────┘
    Also: Firebase Storage (selfies/tickets) · App Check · Secret Manager ·
    Cloud Scheduler · BigQuery (P1 analytics) · Cloud STT/TTS (P1 voice)
@@ -50,7 +51,7 @@
 | Firebase Auth | identity; custom claims carry roles |
 | Cloud Firestore | single realtime data spine for all surfaces |
 | Cloud Functions 2nd gen | secure API/AI gateway + Firestore triggers |
-| Vertex AI (Gemini Flash/Pro, multimodal) | ticket parsing, arrival/route reasoning, match facts, ops briefs, moderation |
+| Gemini 2.5 Flash (via Vertex AI Express Mode, `@google/genai`) | ticket parsing, arrival/route reasoning, match facts, ops briefs, moderation, ops chat |
 | Google Maps Platform (Places, Routes, Maps JS) | start-location autocomplete, transit routing, route map |
 | Cloud Run | crowd/transit simulator service |
 | Cloud Scheduler | periodic simulator ticks + periodic ops brief |
@@ -83,17 +84,16 @@
 
 | Option | Security | Latency | Efficiency |
 |---|---|---|---|
-| **A. Functions gateway (CHOSEN)** | keys in Secret Manager, App Check-gated | +100–300 ms | enables shared caching |
+| **A. Functions gateway (CHOSEN)** | key in Secret Manager, App Check-gated | +100–300 ms | enables shared caching |
 | B. Client-side Gemini API key | key extractable from bundle → fails security rubric | best | none |
 | C. Cloud Run API for everything | fine | fine | more infra to maintain than needed |
 
-**Decision:** A. Callable Functions (`httpsCallable`) with App Check enforcement; streaming responses for the arrival planner so perceived latency stays low.
-**Consequence:** zero secrets in the client bundle — a demoable security claim.
+**Decision:** A. Callable Functions (`httpsCallable`) with App Check enforcement. Gemini access is via **Vertex AI Express Mode** (`@google/genai`, `vertexai: true` + an API key) rather than full ADC/service-account auth — the key is bound from Secret Manager via each function's `secrets` option and injected into the runtime environment; it is never present in source, `.env` files, or the client bundle.
+**Consequence:** zero secrets in the client bundle — a demoable security claim — while still keeping the API key itself out of source control and off the wire to the browser.
 
-### ADR-4: Gemini model split + caching strategy (efficiency rubric)
+### ADR-4: Gemini model choice + caching strategy (efficiency rubric)
 
-- **Gemini Flash:** ticket Vision parsing, route ranking, chat/concierge, moderation — high-volume, latency-sensitive.
-- **Gemini Pro:** ops briefs and arrival planner — lower volume, reasoning-heavy.
+- **Model:** `gemini-2.5-flash` for every call (ticket Vision parsing, route ranking, chat/concierge, moderation, arrival planning, ops briefs). `GEMINI_FLASH_MODEL`/`GEMINI_PRO_MODEL` remain two separate config vars so splitting reasoning-heavy calls onto a heavier tier later is a one-line config change, not a code change.
 - **Cache aggressively in Firestore:** match facts/lineups generated **once per match per language** (`matches/{id}/content/{lang}`), not per user. Arrival plans cached per (section, startArea, language) bucket with 15-min TTL. Ops briefs generated on schedule (every 5 min) + on demand, shared by all ops viewers.
 **Consequence:** demo stays fast and cheap; "we cache Gemini output per language, not per request" is a strong efficiency answer in judging Q&A.
 

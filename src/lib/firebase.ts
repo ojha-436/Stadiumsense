@@ -16,7 +16,11 @@ import {
   type AppCheck,
 } from "firebase/app-check";
 import { getAuth, connectAuthEmulator, type Auth } from "firebase/auth";
-import { getFirestore, connectFirestoreEmulator, type Firestore } from "firebase/firestore";
+import {
+  initializeFirestore,
+  connectFirestoreEmulator,
+  type Firestore,
+} from "firebase/firestore";
 import { getFunctions, connectFunctionsEmulator, type Functions } from "firebase/functions";
 import { getStorage, connectStorageEmulator, type FirebaseStorage } from "firebase/storage";
 
@@ -49,7 +53,12 @@ export const appCheck: AppCheck | null = (() => {
 })();
 
 export const auth: Auth = getAuth(app);
-export const db: Firestore = getFirestore(app);
+// `ignoreUndefinedProperties` is a defence-in-depth safety net: the Firestore
+// SDK otherwise throws synchronously (client-side, before any network call)
+// if any object passed to setDoc/addDoc/updateDoc contains an `undefined`
+// value anywhere, including nested — an easy mistake (e.g. an optional form
+// field left blank) that should never surface as a raw crash to the user.
+export const db: Firestore = initializeFirestore(app, { ignoreUndefinedProperties: true });
 export const functions: Functions = getFunctions(app);
 export const storage: FirebaseStorage = getStorage(app);
 

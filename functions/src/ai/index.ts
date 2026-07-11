@@ -5,7 +5,7 @@ import { GeminiGateway } from "./gemini.js";
 
 let cached: AiGateway | null = null;
 
-/** Returns the configured AI gateway (real Vertex AI, or the offline fake). */
+/** Returns the configured AI gateway (real Gemini, or the offline fake). */
 export function getGateway(): AiGateway {
   if (!cached) {
     cached = CONFIG.aiBackend === "fake" ? new FakeGateway() : new GeminiGateway();

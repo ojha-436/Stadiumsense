@@ -29,6 +29,11 @@ test-results/
 .env
 .env.local
 .env.*.local
+.env.production
+.env.development
+functions/.env
+functions/.env.*
+!functions/.env.example
 *-service-account*.json
 serviceAccountKey.json
 

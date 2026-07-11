@@ -37,7 +37,8 @@ export function OpsChat({ matchId, lang }: { matchId: string; lang: Lang }) {
     try {
       const res = await api.opsChat({ matchId, question: q, history, lang });
       setTurns((prev) => [...prev, { role: "assistant", content: res.answer, sources: res.sources }]);
-    } catch {
+    } catch (err) {
+      console.error("Ops chat request failed", err);
       setTurns((prev) => [
         ...prev,
         { role: "assistant", content: t("common.error"), sources: [] },

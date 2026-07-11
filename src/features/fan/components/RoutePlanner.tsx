@@ -34,7 +34,8 @@ export function RoutePlanner({ profile, lang }: { profile: FanProfile; lang: Lan
           lang,
         })
       );
-    } catch {
+    } catch (err) {
+      console.error("Failed to plan route", err);
       setError(true);
     } finally {
       setLoading(false);

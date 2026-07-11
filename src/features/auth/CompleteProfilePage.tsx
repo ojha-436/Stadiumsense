@@ -36,7 +36,8 @@ export function CompleteProfilePage() {
     setError(null);
     try {
       await completeProfile({ firstName, lastName, phone: phone || undefined, requestedRole });
-    } catch {
+    } catch (err) {
+      console.error("Failed to complete profile", err);
       setError(t("common.error"));
       setBusy(false);
     }

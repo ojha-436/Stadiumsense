@@ -47,7 +47,8 @@ export function TicketScan({
       setSeat(parsed.seat.seat ?? "");
       setGate(parsed.seat.gate ?? "");
       setPhase("confirm");
-    } catch {
+    } catch (err) {
+      console.error("Failed to scan ticket", err);
       setPhase("error");
     }
   };
@@ -55,7 +56,7 @@ export function TicketScan({
   const save = () => {
     onSubmit({
       matchId,
-      seat: { section, row, seat, gate: gate || undefined },
+      seat: gate ? { section, row, seat, gate } : { section, row, seat },
       transportMode: "transit" as TransportMode,
       partySize: 1,
       accessibilityNeeds: [],

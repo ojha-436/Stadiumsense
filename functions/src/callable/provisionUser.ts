@@ -34,6 +34,12 @@ export const provisionUser = onCall({ enforceAppCheck: true }, async (req) => {
     email,
     lang: "en",
     active: true,
+    // Must be present so the client can tell this apart from a doc belonging
+    // to an unrelated legacy app sharing this Firebase project's `users`
+    // collection — its absence is what the client treats as "needs profile
+    // setup", which would otherwise route a freshly-provisioned admin/vendor
+    // straight to the role-chooser instead of their real dashboard.
+    status: "active",
     ...(stallId ? { stallId } : {}),
     createdAt: Date.now(),
   });

@@ -35,7 +35,8 @@ export function OpsDashboard({ match, lang }: { match: Match; lang: Lang }) {
     setBriefError(false);
     try {
       setBrief(await api.opsBrief({ matchId: match.id, lang }));
-    } catch {
+    } catch (err) {
+      console.error("Failed to generate ops brief", err);
       setBriefError(true);
     } finally {
       setBriefing(false);
