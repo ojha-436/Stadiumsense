@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /*
+   * Design tokens as RGB channel triplets so Tailwind's `/opacity` modifiers
+   * work. Light is the default; `.dark` on <html> flips the theme. The
+   * ThemeProvider sets the class before paint, so there is no flash.
+   */
+  :root {
+    --canvas: 247 248 251;
+    --inset: 239 242 246;
+    --surface: 255 255 255;
+    --surface-2: 243 246 250;
+    --border: 221 226 233;
+    --fg: 15 23 39;
+    --fg-muted: 90 100 117;
+    --primary: 12 138 81;
+    --primary-400: 20 158 96;
+    --primary-600: 9 112 66;
+    --primary-fg: 255 255 255;
+    --accent: 161 98 7;
+    --accent-2: 37 99 235;
+    --danger: 200 32 32;
+    --shadow: 15 23 39;
+    color-scheme: light;
+  }
+
+  .dark {
+    --canvas: 8 12 20;
+    --inset: 5 8 14;
+    --surface: 16 22 34;
+    --surface-2: 23 31 47;
+    --border: 35 45 65;
+    --fg: 233 237 243;
+    --fg-muted: 150 162 180;
+    --primary: 31 160 90;
+    --primary-400: 52 199 118;
+    --primary-600: 23 128 72;
+    --primary-fg: 255 255 255;
+    --accent: 245 197 66;
+    --accent-2: 96 165 250;
+    --danger: 244 72 72;
+    --shadow: 0 0 0;
+    color-scheme: dark;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: rgb(var(--canvas));
+    color: rgb(var(--fg));
+    font-family:
+      "Public Sans", system-ui, sans-serif;
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: "Archivo", system-ui, sans-serif;
+    letter-spacing: -0.015em;
+  }
+
+  /* High-contrast focus ring for keyboard users (WCAG 2.4.7). */
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px rgb(var(--canvas)),
+      0 0 0 4px rgb(var(--accent-2));
+    border-radius: 0.5rem;
+  }
+
+  ::selection {
+    background: rgb(var(--primary) / 0.25);
+  }
+
+  /* Refined scrollbars that follow the theme. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--border)) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: rgb(var(--border));
+    border-radius: 999px;
+    border: 3px solid rgb(var(--canvas));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .skip-link {
+    @apply absolute left-4 top-4 z-50 -translate-y-20 rounded-lg bg-accent px-4 py-2 font-semibold text-white transition-transform focus:translate-y-0;
+  }
+
+  /* Subtle stadium-grid atmosphere for hero/auth panels. */
+  .field-grid {
+    background-image:
+      linear-gradient(rgb(var(--fg) / 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(var(--fg) / 0.04) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+}

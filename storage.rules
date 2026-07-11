@@ -1,0 +1,32 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isImageUnder(maxBytes) {
+      return request.resource.contentType.matches("image/.*")
+        && request.resource.size < maxBytes;
+    }
+
+    // Ticket images: a fan uploads only under their own uid; used transiently
+    // by the parseTicket function. 8 MB cap. Not publicly readable.
+    match /tickets/{uid}/{fileName} {
+      allow read: if isSignedIn() && request.auth.uid == uid;
+      allow write: if isSignedIn() && request.auth.uid == uid && isImageUnder(8 * 1024 * 1024);
+    }
+
+    // Social selfies: owner writes under their uid; any signed-in fan can view
+    // published wall images. 5 MB cap.
+    match /posts/{uid}/{fileName} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == uid && isImageUnder(5 * 1024 * 1024);
+    }
+
+    // Everything else denied.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
