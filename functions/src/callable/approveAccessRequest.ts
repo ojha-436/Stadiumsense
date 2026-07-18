@@ -28,8 +28,13 @@ export const approveAccessRequest = onCall({ enforceAppCheck: true }, async (req
     // Bind a stall to newly-approved vendors so rules can scope their data.
     if (role === "vendor")
       claims.stallId = user.customClaims?.stallId ?? `stall-${uid.slice(0, 6)}`;
+    // Set the elevated claim. We deliberately do NOT revoke refresh tokens here:
+    // the newly-approved user is still on the pending screen, and their
+    // "Check status" action calls getIdToken(true) to pull the new claim. A
+    // revoke would invalidate that refresh token and force a full re-login
+    // instead of promoting them in place. (Deactivation in setUserActive still
+    // revokes, which is correct — there we want to kick the session out.)
     await adminAuth.setCustomUserClaims(uid, claims);
-    await adminAuth.revokeRefreshTokens(uid); // force claim refresh
     await db
       .doc(`users/${uid}`)
       .set(

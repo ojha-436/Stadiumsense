@@ -5,6 +5,15 @@
     "skipToContent": "Aller au contenu principal",
     "language": "Langue"
   },
+  "sustainability": {
+    "title": "Votre impact de déplacement",
+    "transitOrWalking": "Choisir {{mode}} plutôt que la voiture permet d'économiser environ {{co2}} kg de CO₂ pour ce trajet.",
+    "driving": "Aucune économie d'émissions estimée — vous conduisez. Le transport en commun ou la marche pour votre prochain match peut réduire cette empreinte.",
+    "treesEquivalent": "C'est à peu près ce que {{trees}} jeunes arbres absorbent en une journée.",
+    "modeTransit": "le transport en commun",
+    "modeWalking": "la marche",
+    "modeRideshare": "le covoiturage"
+  },
   "nav": {
     "home": "Accueil",
     "plan": "Mon plan",
@@ -219,6 +228,7 @@
     "orders": "Commandes",
     "openIncidents": "Incidents ouverts",
     "requests": "Demandes d'accès",
+    "loadError": "Impossible de charger les données d'administration. Assurez-vous d'être connecté avec un compte administrateur.",
     "noRequests": "Aucune demande en attente.",
     "approve": "Approuver",
     "reject": "Refuser",

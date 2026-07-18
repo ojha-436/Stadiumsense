@@ -21,7 +21,7 @@ export function Alert({
   title?: string;
   children?: React.ReactNode;
   className?: string;
-}) {
+}): JSX.Element {
   const { icon: Icon, cls } = TONE[tone];
   return (
     <div

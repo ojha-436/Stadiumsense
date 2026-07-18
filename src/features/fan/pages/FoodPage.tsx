@@ -15,7 +15,7 @@ import { useCart } from "../food/useCart";
 import { placeOrder, cancelOrder } from "../food/placeOrder";
 import { OrderTracker } from "../components/OrderTracker";
 
-export function FoodPage({ profile }: { profile: FanProfile }) {
+export function FoodPage({ profile }: { profile: FanProfile }): JSX.Element {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage as Lang) ?? "en";
   const { user } = useAuth();

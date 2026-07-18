@@ -16,7 +16,7 @@ export function RoleChooser({
 }: {
   value: RequestedRole;
   onChange: (role: RequestedRole) => void;
-}) {
+}): JSX.Element {
   const { t } = useTranslation();
   return (
     <div>

@@ -5,7 +5,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 
 /** Shared split-screen chrome for all auth screens: a branded, atmospheric
  *  panel on the left and the given form content on the right. */
-export function AuthShell({ children }: { children: React.ReactNode }) {
+export function AuthShell({ children }: { children: React.ReactNode }): JSX.Element {
   return (
     <div className="grid min-h-dvh lg:grid-cols-[1.05fr_1fr]">
       <BrandPanel />

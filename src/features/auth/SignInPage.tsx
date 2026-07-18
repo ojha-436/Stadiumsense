@@ -14,7 +14,7 @@ import { landingRoute } from "./roles";
 
 type Mode = "in" | "up";
 
-export function SignInPage() {
+export function SignInPage(): JSX.Element {
   const { t } = useTranslation();
   const { user, role, status, needsProfile, loading, signInEmail, signUpEmail, signInGoogle } =
     useAuth();

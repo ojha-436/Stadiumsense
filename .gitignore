@@ -49,3 +49,7 @@ ui-debug.log
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# local agent / mcp artifacts
+.claude/
+.playwright-mcp/

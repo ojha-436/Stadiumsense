@@ -11,7 +11,7 @@ const ROLE_LABEL: Record<string, string> = { vendor: "role.vendor", ops: "role.o
 
 /** Waiting room for vendor/operator accounts whose access request an admin has
  *  not yet approved. Re-routes automatically once the role is granted. */
-export function PendingApprovalPage() {
+export function PendingApprovalPage(): JSX.Element {
   const { t } = useTranslation();
   const { user, role, status, requestedRole, needsProfile, loading, signOut, refreshClaims } =
     useAuth();

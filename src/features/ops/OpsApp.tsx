@@ -7,7 +7,7 @@ import { Alert } from "@/components/ui/Alert";
 import { useActiveMatch } from "@/lib/dataHooks";
 import { OpsDashboard } from "./OpsDashboard";
 
-export default function OpsApp() {
+export default function OpsApp(): JSX.Element {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage as Lang) ?? "en";
   const { data: match, loading } = useActiveMatch();

@@ -48,14 +48,18 @@ async function readClaims(user: User): Promise<Claims> {
  * The document also tells us whether a brand-new (e.g. Google) user still needs
  * to complete their profile, so the app can route them to that step.
  */
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { children: React.ReactNode }): JSX.Element {
   const [state, setState] = useState<AuthState>(INITIAL);
   const docUnsub = useRef<Unsubscribe | null>(null);
+  // Guards the one-shot token refresh below so an elevation mismatch forces a
+  // claim refresh at most once per token generation (avoids a refresh loop).
+  const elevating = useRef(false);
 
   useEffect(() => {
     return onIdTokenChanged(auth, async (user) => {
       docUnsub.current?.();
       docUnsub.current = null;
+      elevating.current = false;
 
       if (!user) {
         setState({ ...INITIAL, loading: false });
@@ -72,6 +76,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const raw = snap.data();
         const isOwnProfile = snap.exists() && typeof raw?.status === "string";
         const profile: UserDoc | null = isOwnProfile ? mapUser(snap.id, raw!) : null;
+
+        // When an admin approves a request, the profile doc's role/status flip
+        // live via this listener, but the ID token still carries the old `fan`
+        // claim until it is refreshed. Force a one-shot refresh so the elevated
+        // role propagates immediately (onIdTokenChanged re-fires with the new
+        // claim), instead of stranding the user on the fan surface.
+        if (
+          profile &&
+          profile.active &&
+          profile.status === "active" &&
+          profile.role !== "fan" &&
+          profile.role !== claims.role &&
+          !elevating.current
+        ) {
+          elevating.current = true;
+          user.getIdToken(true).catch(() => {
+            elevating.current = false;
+          });
+        }
+
         setState({
           user,
           role: claims.role,
@@ -125,9 +149,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshClaims = useCallback(async () => {
     if (!auth.currentUser) return;
-    await auth.currentUser.getIdToken(true);
-    const claims = await readClaims(auth.currentUser);
-    setState((prev) => ({ ...prev, ...claims }));
+    try {
+      await auth.currentUser.getIdToken(true);
+      const claims = await readClaims(auth.currentUser);
+      setState((prev) => ({ ...prev, ...claims }));
+    } catch {
+      // Token refresh can fail if the session was revoked (e.g. the account was
+      // deactivated); the onIdTokenChanged listener will reconcile state.
+    }
   }, []);
 
   const value = useMemo(

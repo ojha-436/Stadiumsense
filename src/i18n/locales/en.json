@@ -5,6 +5,15 @@
     "skipToContent": "Skip to main content",
     "language": "Language"
   },
+  "sustainability": {
+    "title": "Your travel impact",
+    "transitOrWalking": "Choosing {{mode}} instead of driving saves an estimated {{co2}} kg of CO₂ for this trip.",
+    "driving": "No emissions savings estimated — you're driving. Public transit or walking for your next matchday can cut this footprint.",
+    "treesEquivalent": "That's about the same as what {{trees}} tree seedlings absorb in a day.",
+    "modeTransit": "public transit",
+    "modeWalking": "walking",
+    "modeRideshare": "rideshare"
+  },
   "nav": {
     "home": "Home",
     "plan": "My Plan",
@@ -219,6 +228,7 @@
     "orders": "Orders",
     "openIncidents": "Open incidents",
     "requests": "Access requests",
+    "loadError": "Couldn't load admin data. Make sure you're signed in with an administrator account.",
     "noRequests": "No pending requests.",
     "approve": "Approve",
     "reject": "Reject",

@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/Badge";
 
 /** Live order progress. Reflects status changes pushed via the Firestore
  *  listener the moment the vendor advances the order. */
-export function OrderTracker({ order }: { order: Order }) {
+export function OrderTracker({ order }: { order: Order }): JSX.Element {
   const { t } = useTranslation();
 
   if (order.status === "cancelled") {

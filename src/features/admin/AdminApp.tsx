@@ -14,10 +14,11 @@ import { decideAccessRequest } from "./actions";
 
 type NewRole = "vendor" | "ops" | "admin";
 
-export default function AdminApp() {
+export default function AdminApp(): JSX.Element {
   const { t } = useTranslation();
-  const { data: users } = useStaffUsers();
-  const { data: requests } = usePendingRequests();
+  const { data: users, error: usersError } = useStaffUsers();
+  const { data: requests, error: requestsError } = usePendingRequests();
+  const loadError = requestsError ?? usersError;
   const nav: NavItem[] = [{ to: "/admin", label: t("nav.admin"), icon: Shield }];
 
   const roleLabel = (r: string) => (r === "vendor" ? t("role.vendor") : t("role.operator"));
@@ -60,6 +61,12 @@ export default function AdminApp() {
   return (
     <AppShell nav={nav}>
       <h1 className="mb-4 text-2xl font-bold">{t("admin.title")}</h1>
+
+      {loadError && (
+        <Alert tone="error" className="mb-4">
+          {t("admin.loadError")}
+        </Alert>
+      )}
 
       {/* Access requests from vendors & stadium operators awaiting approval */}
       <Card className="mb-4 border-accent/30">

@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/Badge";
 
 /** Honest labelling: crowd/transit figures come from the demo simulator, not
  *  real sensors. Shown on every operational surface that renders that data. */
-export function SimulatedBadge() {
+export function SimulatedBadge(): JSX.Element {
   const { t } = useTranslation();
   return (
     <Badge tone="info" className="animate-pulse-soft">

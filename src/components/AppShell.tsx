@@ -20,7 +20,7 @@ export interface NavItem {
  * single <main> landmark. Navigation is a real <nav> with an accessible label
  * and current-page indication so screen readers and keyboard users orient fast.
  */
-export function AppShell({ nav, children }: { nav: NavItem[]; children: React.ReactNode }) {
+export function AppShell({ nav, children }: { nav: NavItem[]; children: React.ReactNode }): JSX.Element {
   const { t } = useTranslation();
   const { signOut } = useAuth();
 

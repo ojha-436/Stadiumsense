@@ -9,7 +9,7 @@ import { patchMenuItem, setStallOpen } from "./actions";
 const RESTOCK_AMOUNT = 25;
 
 /** Vendor menu & stock control. Stock changes propagate to fans in real time. */
-export function MenuManager({ stall, lang }: { stall: Stall; lang: Lang }) {
+export function MenuManager({ stall, lang }: { stall: Stall; lang: Lang }): JSX.Element {
   const { t } = useTranslation();
 
   return (

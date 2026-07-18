@@ -1,10 +1,12 @@
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import { FieldValue } from "firebase-admin/firestore";
 import { db } from "../lib/admin.js";
+import { computeOrderTotal } from "../lib/orderPricing.js";
 import type { OrderLine } from "../domain.js";
 
 interface StallMenuItem {
   itemId: string;
+  priceCents: number;
   stock: number;
   soldOut: boolean;
 }
@@ -47,9 +49,14 @@ export const onOrderCreated = onDocumentCreated("orders/{orderId}", async (event
       return { ...m, stock, soldOut: stock <= 0 };
     });
 
+    // Security: never trust the client-submitted total (see orderPricing.ts) —
+    // recompute it from the same trusted menu snapshot used for stock reconciliation.
+    const total = computeOrderTotal(order.items, menu);
+
     tx.update(stallRef, { menu: updatedMenu });
     tx.update(snap.ref, {
       status: "accepted",
+      total,
       timeline: FieldValue.arrayUnion({ status: "accepted", at: Date.now() }),
     });
   });

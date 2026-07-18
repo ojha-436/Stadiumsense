@@ -12,7 +12,7 @@ const ACTIVE: Order["status"][] = ["placed", "accepted", "preparing", "deliverin
 
 /** Live vendor order queue. New orders arrive instantly via the Firestore
  *  listener; the vendor advances each through the fulfilment flow. */
-export function OrderQueue({ orders, lang }: { orders: Order[]; lang: Lang }) {
+export function OrderQueue({ orders, lang }: { orders: Order[]; lang: Lang }): JSX.Element {
   const { t } = useTranslation();
   const now = Date.now();
   const active = orders.filter((o) => ACTIVE.includes(o.status));

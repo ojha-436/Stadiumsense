@@ -10,9 +10,10 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { Alert } from "@/components/ui/Alert";
+import { logger } from "@/lib/logger";
 
 /** Gemini arrival plan card: fetches on mount and on explicit refresh. */
-export function ArrivalPlan({ profile, lang }: { profile: FanProfile; lang: Lang }) {
+export function ArrivalPlan({ profile, lang }: { profile: FanProfile; lang: Lang }): JSX.Element {
   const { t } = useTranslation();
   const [plan, setPlan] = useState<PlanArrivalResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -33,7 +34,7 @@ export function ArrivalPlan({ profile, lang }: { profile: FanProfile; lang: Lang
       });
       setPlan(result);
     } catch (err) {
-      console.error("Failed to generate arrival plan", err);
+      logger.error("Failed to generate arrival plan", err);
       setError(true);
     } finally {
       setLoading(false);

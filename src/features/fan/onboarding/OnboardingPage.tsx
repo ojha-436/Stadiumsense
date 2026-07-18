@@ -7,6 +7,7 @@ import { Alert } from "@/components/ui/Alert";
 import { Spinner } from "@/components/ui/Spinner";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { logger } from "@/lib/logger";
 import { useMatches } from "../hooks";
 import { Questionnaire } from "./Questionnaire";
 import { TicketScan } from "./TicketScan";
@@ -16,7 +17,7 @@ type Tab = "scan" | "form";
 
 /** First-run experience: choose to scan a ticket or fill the questionnaire.
  *  Both paths converge on the same saved profile. */
-export function OnboardingPage({ uid }: { uid: string }) {
+export function OnboardingPage({ uid }: { uid: string }): JSX.Element {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage as Lang) ?? "en";
   const { data: matches, loading } = useMatches();
@@ -31,7 +32,7 @@ export function OnboardingPage({ uid }: { uid: string }) {
       await saveFanProfile(uid, draft);
       // The FanApp profile listener re-renders into the tabbed app automatically.
     } catch (err) {
-      console.error("Failed to save fan profile", err);
+      logger.error("Failed to save fan profile", err);
       setError(true);
       setSaving(false);
     }

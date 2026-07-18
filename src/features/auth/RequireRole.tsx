@@ -11,7 +11,7 @@ import { HOME_FOR_ROLE, landingRoute } from "./roles";
  * enforcement is in Firestore security rules, so a user who tampers with the
  * client still cannot read or write data outside their role.
  */
-export function RequireRole({ allow, children }: { allow: Role[]; children: React.ReactNode }) {
+export function RequireRole({ allow, children }: { allow: Role[]; children: React.ReactNode }): JSX.Element {
   const { user, role, active, status, needsProfile, loading } = useAuth();
   const location = useLocation();
   const { t } = useTranslation();

@@ -1,5 +1,5 @@
 /** The Google "G" mark for the Continue-with-Google button. */
-export function GoogleIcon({ className }: { className?: string }) {
+export function GoogleIcon({ className }: { className?: string }): JSX.Element {
   return (
     <svg className={className} viewBox="0 0 48 48" aria-hidden="true" focusable="false">
       <path

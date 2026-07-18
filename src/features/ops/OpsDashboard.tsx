@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/Button";
 import { Alert } from "@/components/ui/Alert";
 import { Spinner } from "@/components/ui/Spinner";
 import { SimulatedBadge } from "@/components/SimulatedBadge";
+import { logger } from "@/lib/logger";
 import { useAmenities } from "@/features/fan/hooks";
 import { useGates, useIncidents, useTransitLines, useZones } from "./hooks";
 import { setAmenityStatus, setIncidentStatus } from "./actions";
@@ -18,7 +19,7 @@ import { OpsChat } from "./OpsChat";
 
 const SEV_TONE = { low: "info", medium: "warning", high: "danger" } as const;
 
-export function OpsDashboard({ match, lang }: { match: Match; lang: Lang }) {
+export function OpsDashboard({ match, lang }: { match: Match; lang: Lang }): JSX.Element {
   const { t } = useTranslation();
   const { data: zones } = useZones(match.id);
   const { data: gates } = useGates(match.id);
@@ -36,7 +37,7 @@ export function OpsDashboard({ match, lang }: { match: Match; lang: Lang }) {
     try {
       setBrief(await api.opsBrief({ matchId: match.id, lang }));
     } catch (err) {
-      console.error("Failed to generate ops brief", err);
+      logger.error("Failed to generate ops brief", err);
       setBriefError(true);
     } finally {
       setBriefing(false);

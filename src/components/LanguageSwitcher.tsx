@@ -7,7 +7,7 @@ import { Select } from "@/components/ui/Field";
 
 /** Compact language selector available in the app header on every surface.
  *  The label is visually hidden but present for screen readers. */
-export function LanguageSwitcher() {
+export function LanguageSwitcher(): JSX.Element {
   const { i18n, t } = useTranslation();
   const id = useId();
   const current = (i18n.resolvedLanguage as Lang) ?? "en";

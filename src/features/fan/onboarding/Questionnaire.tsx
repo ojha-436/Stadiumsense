@@ -28,7 +28,7 @@ export function Questionnaire({
   lang: Lang;
   submitting: boolean;
   onSubmit: (draft: ProfileDraft) => void;
-}) {
+}): JSX.Element {
   const { t } = useTranslation();
   const [matchId, setMatchId] = useState(matches[0]?.id ?? "");
   const [section, setSection] = useState("");

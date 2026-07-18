@@ -16,7 +16,7 @@ import { WallPage } from "./pages/WallPage";
  * Fan surface. Until the fan has a matchday profile (from ticket scan or the
  * questionnaire) we show onboarding full-screen; afterwards the tabbed app.
  */
-export default function FanApp() {
+export default function FanApp(): JSX.Element {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { data: profile, loading } = useFanProfile(user?.uid ?? null);

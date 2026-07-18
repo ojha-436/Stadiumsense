@@ -11,7 +11,7 @@ import { useAuth } from "@/features/auth/useAuth";
 import { usePolls, usePublishedPosts } from "../wall/hooks";
 import { castVote, createPost } from "../wall/actions";
 
-export function WallPage({ profile }: { profile: FanProfile }) {
+export function WallPage({ profile }: { profile: FanProfile }): JSX.Element {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { data: posts } = usePublishedPosts(profile.matchId);

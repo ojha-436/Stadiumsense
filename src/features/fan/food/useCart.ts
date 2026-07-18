@@ -58,7 +58,18 @@ function reducer(state: CartState, action: Action): CartState {
   }
 }
 
-export function useCart() {
+export interface UseCartResult {
+  stallId: string | null;
+  stallName: string | null;
+  lines: CartLine[];
+  totalCents: number;
+  count: number;
+  add: (stall: Stall, item: MenuItem) => void;
+  remove: (itemId: string) => void;
+  clear: () => void;
+}
+
+export function useCart(): UseCartResult {
   const [state, dispatch] = useReducer(reducer, EMPTY);
 
   const lines = useMemo(() => Object.values(state.lines), [state.lines]);

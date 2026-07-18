@@ -14,7 +14,7 @@ const LABEL: Record<Role, string> = {
 
 /** Demo-only shortcut to preview each role surface (bypasses approval). The
  *  admin portal is reached separately via its access-key gate at /admin. */
-export function DemoRoleSwitcher() {
+export function DemoRoleSwitcher(): JSX.Element {
   useSyncExternalStore(demoAuth.subscribe, demoAuth.getSnapshot);
   const role = demoAuth.role();
   return (

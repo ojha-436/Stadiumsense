@@ -5,6 +5,7 @@ import type { RequestedRole } from "@/types/domain";
 import { Button } from "@/components/ui/Button";
 import { Field, Input } from "@/components/ui/Field";
 import { Alert } from "@/components/ui/Alert";
+import { logger } from "@/lib/logger";
 import { AuthShell } from "./AuthShell";
 import { RoleChooser } from "./RoleChooser";
 import { useAuth } from "./useAuth";
@@ -12,7 +13,7 @@ import { landingRoute } from "./roles";
 
 /** Shown to a brand-new (e.g. Google) user: name/email come from the provider;
  *  they confirm details and pick a role to finish creating their account. */
-export function CompleteProfilePage() {
+export function CompleteProfilePage(): JSX.Element {
   const { t } = useTranslation();
   const { user, role, status, needsProfile, loading, completeProfile } = useAuth();
 
@@ -37,7 +38,7 @@ export function CompleteProfilePage() {
     try {
       await completeProfile({ firstName, lastName, phone: phone || undefined, requestedRole });
     } catch (err) {
-      console.error("Failed to complete profile", err);
+      logger.error("Failed to complete profile", err);
       setError(t("common.error"));
       setBusy(false);
     }

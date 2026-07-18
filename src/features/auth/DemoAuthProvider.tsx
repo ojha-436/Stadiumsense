@@ -8,7 +8,7 @@ import { AuthContext, type AuthContextValue, type ProfileData, type SignUpData }
  * complete-profile) against the in-memory demo controller, so the full flow is
  * exercised with no backend.
  */
-export function DemoAuthProvider({ children }: { children: React.ReactNode }) {
+export function DemoAuthProvider({ children }: { children: React.ReactNode }): JSX.Element {
   const snapshot = useSyncExternalStore(demoAuth.subscribe, demoAuth.getSnapshot);
 
   const value = useMemo<AuthContextValue>(() => {

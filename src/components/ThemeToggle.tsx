@@ -4,7 +4,7 @@ import { useTheme } from "@/lib/theme/useTheme";
 
 /** Accessible light/dark switch. Announces the target state and reflects the
  *  current one via aria-pressed; the icon crossfades on toggle. */
-export function ThemeToggle({ className }: { className?: string }) {
+export function ThemeToggle({ className }: { className?: string }): JSX.Element {
   const { theme, toggle } = useTheme();
   const isDark = theme === "dark";
   return (

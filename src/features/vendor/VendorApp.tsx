@@ -10,7 +10,7 @@ import { useStall, useStallOrders } from "./hooks";
 import { OrderQueue } from "./OrderQueue";
 import { MenuManager } from "./MenuManager";
 
-export default function VendorApp() {
+export default function VendorApp(): JSX.Element {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage as Lang) ?? "en";
   const { stallId } = useAuth();

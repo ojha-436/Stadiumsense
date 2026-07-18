@@ -8,11 +8,12 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Spinner } from "@/components/ui/Spinner";
 import { Alert } from "@/components/ui/Alert";
+import { logger } from "@/lib/logger";
 
 const CROWD_TONE = { low: "success", medium: "warning", high: "danger" } as const;
 
 /** Home→stadium route planner. Only renders once the fan has a start address. */
-export function RoutePlanner({ profile, lang }: { profile: FanProfile; lang: Lang }) {
+export function RoutePlanner({ profile, lang }: { profile: FanProfile; lang: Lang }): JSX.Element {
   const { t } = useTranslation();
   const [data, setData] = useState<PlanRouteResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,7 +36,7 @@ export function RoutePlanner({ profile, lang }: { profile: FanProfile; lang: Lan
         })
       );
     } catch (err) {
-      console.error("Failed to plan route", err);
+      logger.error("Failed to plan route", err);
       setError(true);
     } finally {
       setLoading(false);

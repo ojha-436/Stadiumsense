@@ -18,7 +18,7 @@ function initialTheme(): Theme {
  * `light` class the token system keys off) and persists the choice. The inline
  * script in index.html applies the class pre-paint; this keeps React in sync.
  */
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
+export function ThemeProvider({ children }: { children: React.ReactNode }): JSX.Element {
   const [theme, setThemeState] = useState<Theme>(initialTheme);
 
   useEffect(() => {

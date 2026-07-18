@@ -8,6 +8,7 @@ import { cn } from "@/lib/cn";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { logger } from "@/lib/logger";
 
 interface ChatTurn extends OpsChatMessage {
   sources?: string[];
@@ -18,7 +19,7 @@ interface ChatTurn extends OpsChatMessage {
  * from fan-supplied data (profiles, orders, fan-reported incidents), so the
  * operator gets grounded, source-attributed responses — not open-ended chat.
  */
-export function OpsChat({ matchId, lang }: { matchId: string; lang: Lang }) {
+export function OpsChat({ matchId, lang }: { matchId: string; lang: Lang }): JSX.Element {
   const { t } = useTranslation();
   const [turns, setTurns] = useState<ChatTurn[]>([]);
   const [input, setInput] = useState("");
@@ -38,7 +39,7 @@ export function OpsChat({ matchId, lang }: { matchId: string; lang: Lang }) {
       const res = await api.opsChat({ matchId, question: q, history, lang });
       setTurns((prev) => [...prev, { role: "assistant", content: res.answer, sources: res.sources }]);
     } catch (err) {
-      console.error("Ops chat request failed", err);
+      logger.error("Ops chat request failed", err);
       setTurns((prev) => [
         ...prev,
         { role: "assistant", content: t("common.error"), sources: [] },

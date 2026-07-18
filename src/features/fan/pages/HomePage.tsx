@@ -5,9 +5,10 @@ import { Card } from "@/components/ui/Card";
 import { useMatch } from "../hooks";
 import { ArrivalPlan } from "../components/ArrivalPlan";
 import { RoutePlanner } from "../components/RoutePlanner";
+import { SustainabilityInsight } from "../components/SustainabilityInsight";
 import { seatLabel } from "../seat";
 
-export function HomePage({ profile }: { profile: FanProfile }) {
+export function HomePage({ profile }: { profile: FanProfile }): JSX.Element {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage as Lang) ?? "en";
   const { data: match } = useMatch(profile.matchId);
@@ -34,6 +35,7 @@ export function HomePage({ profile }: { profile: FanProfile }) {
 
       <ArrivalPlan profile={profile} lang={lang} />
       <RoutePlanner profile={profile} lang={lang} />
+      <SustainabilityInsight profile={profile} />
     </div>
   );
 }

@@ -15,6 +15,7 @@
  */
 import { GoogleGenAI, Type, type Schema } from "@google/genai";
 import { CONFIG } from "../config.js";
+import { sustainabilityPromptLine } from "../lib/sustainability.js";
 import type { Lang, Match } from "../domain.js";
 import type {
   AiGateway,
@@ -112,6 +113,7 @@ Fan seat section: ${input.section}${input.gate ? `, printed gate ${input.gate}` 
 Travelling from: ${input.startArea ?? "unknown"} by ${input.transportMode}.
 Accessibility needs: ${input.accessibilityNeeds.join(", ") || "none"}.
 Recommend when to leave and arrive, and the best entry gate for their section, accounting for security queues that peak 60-90 minutes before kick-off and giving extra buffer if accessibility needs are present.
+${sustainabilityPromptLine(input.transportMode)}
 Write reasoning and assumptions in ${LANG_NAME[input.lang]}. Return ISO 8601 timestamps.`;
     return generateJson<ArrivalPlanResult>(CONFIG.proModel, [{ text: prompt }], schema);
   }

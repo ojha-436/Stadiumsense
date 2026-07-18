@@ -14,7 +14,7 @@ const ICON: Record<AmenityType, typeof Droplet> = {
 };
 const STATUS_TONE = { available: "success", busy: "warning", closed: "danger" } as const;
 
-export function AmenitiesPage({ profile }: { profile: FanProfile }) {
+export function AmenitiesPage({ profile }: { profile: FanProfile }): JSX.Element {
   const { t } = useTranslation();
   const { data: amenities, loading } = useAmenities(profile.matchId);
 

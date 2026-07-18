@@ -6,7 +6,7 @@ StadiumSense is a multilingual (English / Spanish / French) GenAI companion for 
 
 | Surface | Who | What it does |
 |---|---|---|
-| **Fan PWA** | Ticket holders | Scan ticket (Gemini Vision) or answer a short questionnaire → Gemini recommends the best **arrival time + entry gate** and the **least-crowded transit route** from home; browse **match facts & line-ups**; **order food to your seat**; find **water/restrooms**; post to the **fan wall** and vote in **prediction polls**. |
+| **Fan PWA** | Ticket holders | Scan ticket (Gemini Vision) or answer a short questionnaire → Gemini recommends the best **arrival time + entry gate** and the **least-crowded transit route** from home, with a **sustainability nudge** (CO₂ saved by the chosen travel mode, woven into the AI's advice); browse **match facts & line-ups**; **order food to your seat**; find **water/restrooms**; post to the **fan wall** and vote in **prediction polls**. |
 | **Ops dashboard** | Venue staff | Live crowd-density heat, gate queues, transit load, and incidents — with an on-demand **Gemini situation brief** and recommended actions. |
 | **Vendor portal** | Food vendors | Live order queue + menu/stock management; stock updates reach fans instantly. |
 | **Admin console** | Organizers | Provision & deactivate staff/vendor accounts with role-scoped access. |
@@ -35,7 +35,7 @@ The admin panel is gated by a digital access key (client-side gate, default show
 | **Testing** | Vitest unit tests (i18n key-parity, cart reducer, formatters, mappers, accessible `Field`), Cloud Functions tests (Gemini gateway logic), **Firebase-emulator security-rules tests** (executable proof of the access model), and a Playwright e2e smoke — all wired into GitHub Actions CI. |
 | **Security** | Role-based **Firestore security rules** (deny-by-default) + **Storage rules**, roles as **Auth custom claims** set only by an admin-only function, **App Check** enforced on every callable, **all Gemini/Maps calls server-side** (no third-party key in the browser), hardened **CSP** + security headers, CSPRNG temp passwords, deactivation revokes refresh tokens. |
 | **Accessibility** | WCAG 2.1 AA intent: semantic landmarks, skip link, programmatically-associated labels/errors (`Field`), `role=meter`/`status`/`alert`, keyboard-complete flows, visible focus rings, reduced-motion support, colour never the sole signal, Gemini-generated **alt text** for fan photos, and full **EN/ES/FR** localisation. |
-| **Problem-statement alignment** | Directly covers navigation, crowd management, accessibility, transportation, multilingual assistance, operational intelligence, and real-time decision support — the exact domains named in the brief. |
+| **Problem-statement alignment** | Directly covers navigation, crowd management, accessibility, transportation, **sustainability**, multilingual assistance, operational intelligence, and real-time decision support — every domain named in the brief. |
 | **Efficiency** | Gemini **2.5 Flash** for every AI call, per-language **caching** of match content and arrival plans (one generation shared by thousands of fans), realtime **Firestore listeners** instead of polling, route-level **code-splitting** (the fan bundle never ships ops/vendor/admin code). |
 
 ---

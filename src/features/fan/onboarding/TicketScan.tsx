@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Alert } from "@/components/ui/Alert";
 import { Spinner } from "@/components/ui/Spinner";
 import { Field, Input } from "@/components/ui/Field";
+import { logger } from "@/lib/logger";
 import type { Match, TransportMode } from "@/types/domain";
 import type { ProfileDraft } from "./saveProfile";
 
@@ -25,7 +26,7 @@ export function TicketScan({
   matches: Match[];
   submitting: boolean;
   onSubmit: (draft: ProfileDraft) => void;
-}) {
+}): JSX.Element {
   const { t } = useTranslation();
   const fileInput = useRef<HTMLInputElement>(null);
   const [phase, setPhase] = useState<Phase>("idle");
@@ -48,7 +49,7 @@ export function TicketScan({
       setGate(parsed.seat.gate ?? "");
       setPhase("confirm");
     } catch (err) {
-      console.error("Failed to scan ticket", err);
+      logger.error("Failed to scan ticket", err);
       setPhase("error");
     }
   };

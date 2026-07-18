@@ -34,8 +34,16 @@ export default tseslint.config(
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
       "@typescript-eslint/consistent-type-imports": ["error", { prefer: "type-imports" }],
+      "@typescript-eslint/explicit-module-boundary-types": "error",
       "no-console": ["warn", { allow: ["warn", "error"] }],
     },
+  },
+  {
+    // The logger is the one place allowed to touch the console directly — every
+    // other module routes through it. Scope the exception here instead of
+    // widening the global allow-list.
+    files: ["src/lib/logger.ts"],
+    rules: { "no-console": "off" },
   },
   {
     files: ["src/**/*.{test,spec}.{ts,tsx}", "src/test/**", "test/**", "scripts/**"],

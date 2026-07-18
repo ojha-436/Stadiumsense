@@ -11,7 +11,7 @@ import { Spinner } from "@/components/ui/Spinner";
 import { Alert } from "@/components/ui/Alert";
 import { useMatch } from "../hooks";
 
-export function MatchPage({ profile }: { profile: FanProfile }) {
+export function MatchPage({ profile }: { profile: FanProfile }): JSX.Element {
   const { t, i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage as Lang) ?? "en";
   const { data: match, loading } = useMatch(profile.matchId);

@@ -18,7 +18,7 @@ interface FieldProps {
 
 /** Wraps a form control with a programmatically-associated label, hint, and
  *  error message so assistive tech announces them correctly (WCAG 1.3.1, 3.3.1). */
-export function Field({ label, hint, error, required, className, children }: FieldProps) {
+export function Field({ label, hint, error, required, className, children }: FieldProps): JSX.Element {
   const id = useId();
   const hintId = hint ? `${id}-hint` : undefined;
   const errorId = error ? `${id}-error` : undefined;
@@ -57,10 +57,10 @@ export function Field({ label, hint, error, required, className, children }: Fie
 const controlClass =
   "h-11 w-full rounded-xl border border-surface-border bg-night-950 px-3 text-night-50 placeholder:text-night-100/40 focus:border-flag-gold";
 
-export function Input({ className, ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
+export function Input({ className, ...props }: React.InputHTMLAttributes<HTMLInputElement>): JSX.Element {
   return <input className={cn(controlClass, className)} {...props} />;
 }
 
-export function Select({ className, ...props }: React.SelectHTMLAttributes<HTMLSelectElement>) {
+export function Select({ className, ...props }: React.SelectHTMLAttributes<HTMLSelectElement>): JSX.Element {
   return <select className={cn(controlClass, "appearance-none", className)} {...props} />;
 }

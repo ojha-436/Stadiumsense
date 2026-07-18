@@ -5,6 +5,15 @@
     "skipToContent": "Saltar al contenido principal",
     "language": "Idioma"
   },
+  "sustainability": {
+    "title": "Tu impacto de viaje",
+    "transitOrWalking": "Elegir {{mode}} en lugar de conducir ahorra un estimado de {{co2}} kg de CO₂ en este viaje.",
+    "driving": "No se estima ahorro de emisiones — estás conduciendo. El transporte público o caminar en tu próximo día de partido puede reducir esta huella.",
+    "treesEquivalent": "Es aproximadamente lo que {{trees}} plántulas de árboles absorben en un día.",
+    "modeTransit": "transporte público",
+    "modeWalking": "caminar",
+    "modeRideshare": "viaje compartido"
+  },
   "nav": {
     "home": "Inicio",
     "plan": "Mi plan",
@@ -219,6 +228,7 @@
     "orders": "Pedidos",
     "openIncidents": "Incidentes abiertos",
     "requests": "Solicitudes de acceso",
+    "loadError": "No se pudieron cargar los datos de administración. Asegúrate de haber iniciado sesión con una cuenta de administrador.",
     "noRequests": "No hay solicitudes pendientes.",
     "approve": "Aprobar",
     "reject": "Rechazar",

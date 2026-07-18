@@ -13,7 +13,7 @@ import { ADMIN_ACCESS_KEY, ADMIN_UNLOCK_KEY } from "./config";
  * overridable per deployment). Once entered, the portal stays unlocked for the
  * browser session. This models the "hardware/digital key" entry requirement.
  */
-export function AdminGate({ children }: { children: React.ReactNode }) {
+export function AdminGate({ children }: { children: React.ReactNode }): JSX.Element {
   const { t } = useTranslation();
   const [unlocked, setUnlocked] = useState(
     () => sessionStorage.getItem(ADMIN_UNLOCK_KEY) === "true"
