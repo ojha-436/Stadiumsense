@@ -31,12 +31,32 @@ The admin panel is gated by a digital access key (client-side gate, default show
 
 | Parameter | How StadiumSense scores |
 |---|---|
-| **Code quality** | TypeScript **strict** everywhere (`noUncheckedIndexedAccess`, `noImplicitReturns`), ESLint + Prettier clean (0 warnings), feature-sliced architecture, a single typed **domain model** shared across UI and Cloud Functions, all AI behind one **`AiGateway` interface**, zero `any` in app code. |
-| **Testing** | Vitest unit tests (i18n key-parity, cart reducer, formatters, mappers, accessible `Field`), Cloud Functions tests (Gemini gateway logic), **Firebase-emulator security-rules tests** (executable proof of the access model), and a Playwright e2e smoke — all wired into GitHub Actions CI. |
+| **Code quality** | TypeScript **strict** everywhere (`noUncheckedIndexedAccess`, `noImplicitReturns`), **explicit return types enforced** (`explicit-module-boundary-types: error`) across app, functions **and** simulator, ESLint clean (0 warnings, all three packages), feature-sliced architecture, a single typed **domain model** shared across UI and Cloud Functions, all AI behind one **`AiGateway` interface**, a central **structured logger** (no stray `console.*`), and zero `any` in app code. |
+| **Testing** | **103 unit tests** across three packages (frontend, functions, simulator) — i18n key-parity, cart reducer, formatters, mappers, accessible `Field`, auth role routing, order pricing, the sustainability calc, and both loggers — plus **Firebase-emulator security-rules tests**, and a **hermetic demo-mode Playwright golden path with an axe WCAG scan**. Per-module **coverage thresholds** are enforced in CI. |
 | **Security** | Role-based **Firestore security rules** (deny-by-default) + **Storage rules**, roles as **Auth custom claims** set only by an admin-only function, **App Check** enforced on every callable, **all Gemini/Maps calls server-side** (no third-party key in the browser), hardened **CSP** + security headers, CSPRNG temp passwords, deactivation revokes refresh tokens. |
 | **Accessibility** | WCAG 2.1 AA intent: semantic landmarks, skip link, programmatically-associated labels/errors (`Field`), `role=meter`/`status`/`alert`, keyboard-complete flows, visible focus rings, reduced-motion support, colour never the sole signal, Gemini-generated **alt text** for fan photos, and full **EN/ES/FR** localisation. |
-| **Problem-statement alignment** | Directly covers navigation, crowd management, accessibility, transportation, **sustainability**, multilingual assistance, operational intelligence, and real-time decision support — every domain named in the brief. |
+| **Problem-statement alignment** | Directly covers navigation, crowd management, accessibility, transportation, **sustainability**, multilingual assistance, operational intelligence, and real-time decision support — every domain named in the brief. See the domain→feature→AI map below. |
 | **Efficiency** | Gemini **2.5 Flash** for every AI call, per-language **caching** of match content and arrival plans (one generation shared by thousands of fans), realtime **Firestore listeners** instead of polling, route-level **code-splitting** (the fan bundle never ships ops/vendor/admin code). |
+
+---
+
+## Generative AI, mapped to every brief domain
+
+The problem statement names eight domains. Each maps to a concrete, shipped feature
+on a specific route, powered by a specific Gemini call — nothing is aspirational.
+
+| Brief domain | Shipped feature | Route | Gemini call |
+|---|---|---|---|
+| Navigation | Best **arrival time + entry gate** for your section | `/fan` (home) | `planArrival` |
+| Crowd management | Live density / gate queues + on-demand **situation brief** | `/ops` | `opsBrief` |
+| Accessibility | Arrival plan widens buffers for declared access needs; full a11y UI | `/fan` | `planArrival` (accessibility inputs) |
+| Transportation | **Least-crowded route** from home to the stadium | `/fan` (home) | `planRoute` |
+| **Sustainability** | **CO₂ saved by travel mode**, woven into the AI's arrival advice + a fan insight card | `/fan` (home) | `planArrival` + `lib/sustainability` |
+| Multilingual assistance | Whole UI **and** every Gemini output in EN / ES / FR | all | every call takes `lang` |
+| Operational intelligence | **Ops chatbot grounded strictly on fan-supplied data** (no hallucinated numbers) | `/ops` | `opsChat` |
+| Real-time decision support | Live Firestore spine + on-demand briefs/plans | `/ops`, `/fan` | `opsBrief`, `planArrival` |
+| _Bonus:_ ticket understanding | **Gemini Vision** reads a photographed ticket to prefill the profile | `/fan` onboarding | `parseTicket` |
+| _Bonus:_ safe UGC | Fan-wall posts get Gemini **moderation + auto alt-text** | `/fan` wall | `onPostCreated` trigger |
 
 ---
 
